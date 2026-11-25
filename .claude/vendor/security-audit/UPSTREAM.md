@@ -37,19 +37,19 @@ git -C "$SB/cf" checkout "$NEW"
 # 2. Vet before copying anything.
 git -C "$SB/cf" log --oneline c1c8a8c1471069fb0e188eeaff69b8e8db6564a8.."$NEW"
 diff -r --exclude=UPSTREAM.md --exclude=LICENSE \
-  "$SB/cf/skills/security-audit" .claude/skills/security-audit
+  "$SB/cf/skills/security-audit" .claude/vendor/security-audit
 # Read every changed .cjs file in full. Grep for network calls, child_process,
 # and fs writes outside the output dir. Re-check upstream status of #128/#160.
 
 # 3. Copy.
-cp -p "$SB/cf/skills/security-audit/"* .claude/skills/security-audit/
-cp -p "$SB/cf/LICENSE" .claude/skills/security-audit/LICENSE
+cp -p "$SB/cf/skills/security-audit/"* .claude/vendor/security-audit/
+cp -p "$SB/cf/LICENSE" .claude/vendor/security-audit/LICENSE
 
 # 4. Verify: first two commands print nothing; the third must show `# fail 0`.
 diff -r --exclude=UPSTREAM.md --exclude=LICENSE \
-  "$SB/cf/skills/security-audit" .claude/skills/security-audit
-cmp "$SB/cf/LICENSE" .claude/skills/security-audit/LICENSE
-(cd /tmp && node --test "$OLDPWD/.claude/skills/security-audit/validate-findings.test.cjs" "$OLDPWD/.claude/skills/security-audit/validate-coverage-ledger.test.cjs") 2>&1 | grep -E '^# (pass|fail)'
+  "$SB/cf/skills/security-audit" .claude/vendor/security-audit
+cmp "$SB/cf/LICENSE" .claude/vendor/security-audit/LICENSE
+(cd /tmp && node --test "$OLDPWD/.claude/vendor/security-audit/validate-findings.test.cjs" "$OLDPWD/.claude/vendor/security-audit/validate-coverage-ledger.test.cjs") 2>&1 | grep -E '^# (pass|fail)'
 
 # 5. Update the commit and date at the top of this file.
 
@@ -58,4 +58,4 @@ python3 -c 'import shutil,sys; shutil.rmtree(sys.argv[1])' "$SB"
 ```
 
 After the bump is committed, refresh the installed copy the same way:
-`cp -p .claude/skills/security-audit/* ~/.claude/skills/security-audit/`
+`cp -p .claude/vendor/security-audit/* ~/.claude/vendor/security-audit/`

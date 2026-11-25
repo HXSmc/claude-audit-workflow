@@ -83,10 +83,10 @@ finds nothing anywhere in the tree.
    - **Roles on the hub-spoke engine.** One named delegated PARENT owner — not the hub, e.g.
    a `security-reviewer` subagent on opus — is the sole writer of `run-metadata.json`,
    `coverage-ledger.json` and `findings.json`, and runs both validators with `node`:
-   `node ~/.claude/skills/security-audit/validate-findings.cjs <run-dir>/findings.json` and
-   `node ~/.claude/skills/security-audit/validate-coverage-ledger.cjs <run-dir>/coverage-ledger.json`.
+   `node ~/.claude/vendor/security-audit/validate-findings.cjs <run-dir>/findings.json` and
+   `node ~/.claude/vendor/security-audit/validate-coverage-ledger.cjs <run-dir>/coverage-ledger.json`.
    Hunters = GLM spokes; they read the playbooks by absolute path under
-   `~/.claude/skills/security-audit/` (spokes have no Skill tool). Verifiers = fresh
+   `~/.claude/vendor/security-audit/` (spokes have no Skill tool). Verifiers = fresh
    agents that never hunted that unit (hunter ≠ verifier). The hub executes nothing.
    - **Guardrails (binding).** Paste this whole bullet verbatim into the parent's delegation
    brief; the parent pastes it into the prompt of every agent it launches (recon, hunter, verifier, critic). It
