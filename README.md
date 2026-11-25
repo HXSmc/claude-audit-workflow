@@ -11,9 +11,9 @@ checks apply.
 From a clone of this repo:
 
 ```bash
-mkdir -p ~/.claude/commands ~/.claude/skills
+mkdir -p ~/.claude/commands ~/.claude/vendor
 cp .claude/commands/audit-workflow.md ~/.claude/commands/audit-workflow.md
-cp -R .claude/skills/security-audit ~/.claude/skills/
+cp -R .claude/vendor/security-audit ~/.claude/vendor/
 ```
 
 Then run `/audit-workflow` in any repo.
@@ -32,9 +32,9 @@ Then run `/audit-workflow` in any repo.
 
 Item 2 (Security) runs Cloudflare's security-audit-skill as its business-logic layer. It is
 vendored unmodified under the MIT license
-([LICENSE](.claude/skills/security-audit/LICENSE)).
-[UPSTREAM.md](.claude/skills/security-audit/UPSTREAM.md) records the pinned upstream commit and
-how to bump it. Install puts the skill at `~/.claude/skills/security-audit`.
+([LICENSE](.claude/vendor/security-audit/LICENSE)).
+[UPSTREAM.md](.claude/vendor/security-audit/UPSTREAM.md) records the pinned upstream commit and
+how to bump it. Install puts the skill at `~/.claude/vendor/security-audit`, not in your skills folder: that keeps it from auto-loading in other sessions without the item-2 guardrails (issue #128).
 
 How item 2 runs it:
 
