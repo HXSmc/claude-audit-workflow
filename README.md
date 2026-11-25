@@ -1,40 +1,68 @@
 # audit-workflow
 
-Claude Code slash command: `/audit-workflow` — a full codebase audit queue (bugs, security,
-API auth, dependency CVEs, WCAG, minimap, UI anti-slop, production readiness) run in strict
-order via a GLM hub-spoke orchestrator pattern. Claude acts as the hub (plans, writes specs,
-reviews diffs, runs gates); volume work (find/fix/test) is delegated to spokes, and external
-fact lookups (CVEs, versions, licenses) go through a research step — keeping the hub's own
-usage for judgment calls only.
+`/audit-workflow` is a Claude Code slash command that runs an ordered 17-item codebase audit
+queue over a hub-spoke orchestrator: the hub plans each item and judges findings, cheap spokes
+do the volume work (find, fix, test), and a research step handles external fact lookups (CVEs,
+versions, licenses). A Step 0 project profile, derived from evidence in the repo, decides which
+checks apply.
 
 ## Install
 
-Copy the command into your Claude Code commands directory:
+From a clone of this repo:
 
 ```bash
-mkdir -p ~/.claude/commands
+mkdir -p ~/.claude/commands ~/.claude/skills
 cp .claude/commands/audit-workflow.md ~/.claude/commands/audit-workflow.md
+cp -R .claude/skills/security-audit ~/.claude/skills/
 ```
 
 Then run `/audit-workflow` in any repo.
 
 ## Requirements
 
-This command assumes you have some hub-spoke orchestration setup (e.g. a `glm-code`-style
-spoke runner and a `/research` command) already configured in your Claude Code environment.
-Adjust the spoke/research commands referenced in the file to match your own setup if different.
+- Claude Code.
+- A hub-spoke setup: a `glm-code`-style spoke runner and a `/research` command; adjust the
+  names in [the command file](.claude/commands/audit-workflow.md) if yours differ.
+- Node. The security skill's validators (`validate-findings.cjs`,
+  `validate-coverage-ledger.cjs`) are Node scripts; `node --test` runs their bundled tests.
+- Optional local scanners: semgrep, gitleaks, osv-scanner.
+- Optional bubblewrap, if you want the security pass inside a real OS sandbox.
+
+## Vendored: Cloudflare security-audit skill
+
+Item 2 (Security) runs Cloudflare's security-audit-skill as its business-logic layer. It is
+vendored unmodified under the MIT license
+([LICENSE](.claude/skills/security-audit/LICENSE)).
+[UPSTREAM.md](.claude/skills/security-audit/UPSTREAM.md) records the pinned upstream commit and
+how to bump it. Install puts the skill at `~/.claude/skills/security-audit`.
+
+How item 2 runs it:
+
+- `quick` profile by default, with a fixed agent budget.
+- Source-only, unless a real OS sandbox (bubblewrap or similar) is verified present.
+- It never sets, clears or deletes the HOME environment variable. Upstream issue #128: an agent cleared
+  a real user profile while chasing a scratch-local HOME.
+- No live probing.
 
 ## Queue
 
+0. Idea pressure-test
 1. Bugs
-2. Security
+2. Security — local scanners first, then the Cloudflare security-audit skill pass
 3. API auth
 4. Dependency CVEs
-5. WCAG
-6. Minimap
-7. UI anti-slop
-8. Production readiness (public-facing apps only)
-9. Update bookkeeping (`audit.md`)
+5. Free-text input charset validation / Unicode hardening
+6. Refactoring / code unification
+7. Over-engineering
+8. WCAG
+9. UI anti-slop
+10. Policy / ToS compliance check
+11. Production readiness
+12. Dynamic security testing
+13. Minimap
+14. AI-assistant discoverability / `llms.txt`
+15. Lender-grade financial hygiene
+16. Update `audit.md`
 
-Each step's findings are written to a gitignored `.md` file before any fix is applied, then
-verified with real test/gate runs before being marked done.
+Findings go to a gitignored `.md` file before any fix is applied. Every fix is verified with
+real test/gate runs; checks the profile marks N/A are excluded from the score.
